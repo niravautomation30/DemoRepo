@@ -1,0 +1,36 @@
+name: Run Karate Feature File
+'on':
+  workflow_dispatch:
+    inputs:
+      feature_file:
+        description: >-
+          Relative path to the Karate feature file (e.g.,
+          tests/features/login.feature)
+        required: true
+        type: string
+        default: tests/features/demo.feature
+jobs:
+  run-karate-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+      - name: Run Specified Karate Feature File
+        run: |
+          karate "${{ github.event.inputs.feature_file }}"
